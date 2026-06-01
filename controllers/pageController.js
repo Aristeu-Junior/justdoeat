@@ -42,6 +42,7 @@ function serveFile(res, filePath, baseDir) {
 
   fs.readFile(normalizedPath, (error, content) => {
     if (error) {
+      console.error(`Arquivo nao encontrado no servidor: ${normalizedPath}`);
       send(res, 404, "Arquivo nao encontrado.", { "Content-Type": "text/plain; charset=utf-8" });
       return;
     }
