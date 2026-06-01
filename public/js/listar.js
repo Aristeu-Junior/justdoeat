@@ -54,6 +54,7 @@ const elements = {
     filter: document.getElementById("filter-products"),
     list: document.getElementById("products-list"),
     form: document.getElementById("product-form"),
+    modal: document.getElementById("product-modal"),
     formTitle: document.getElementById("form-title"),
     productId: document.getElementById("product-id"),
     name: document.getElementById("product-name"),
@@ -64,11 +65,28 @@ const elements = {
     image: document.getElementById("product-image"),
     upload: document.getElementById("upload-image"),
     toggle: document.getElementById("status-toggle"),
+    statusText: document.getElementById("status-text"),
     active: document.getElementById("product-active"),
     cancel: document.getElementById("cancel-product"),
     delete: document.getElementById("delete-product"),
     navFilters: document.querySelectorAll("[data-category-filter]")
 };
+
+function openModal() {
+    elements.modal.classList.remove("hidden");
+    elements.name.focus();
+}
+
+function closeModal() {
+    elements.modal.classList.add("hidden");
+    elements.add.focus();
+}
+
+function updateStatusText() {
+    const isActive = elements.active.value === "true";
+    elements.statusText.textContent = `Status: ${isActive ? "Ativo" : "Inativo"}`;
+    elements.toggle.setAttribute("aria-pressed", String(isActive));
+}
 
 function loadProducts() {
     const savedProducts = localStorage.getItem(storageKey);
@@ -158,8 +176,9 @@ function clearForm() {
     elements.active.value = "true";
     elements.delete.disabled = true;
     elements.toggle.classList.remove("inactive");
+    updateStatusText();
     renderProducts();
-    elements.name.focus();
+    openModal();
 }
 
 function fillForm(product) {
@@ -176,7 +195,9 @@ function fillForm(product) {
     elements.delete.disabled = false;
     elements.active.value = String(product.active);
     elements.toggle.classList.toggle("inactive", !product.active);
+    updateStatusText();
     renderProducts();
+    openModal();
 }
 
 function handleSubmit(event) {
@@ -208,6 +229,8 @@ function handleSubmit(event) {
 
     saveProducts();
     fillForm(product);
+    window.JustDoEatUI.showToast(currentIndex >= 0 ? "Produto atualizado com sucesso." : "Produto adicionado com sucesso.", "success");
+    closeModal();
 }
 
 function deleteSelectedProduct() {
@@ -226,6 +249,8 @@ function deleteSelectedProduct() {
     state.products = state.products.filter((item) => item.id !== product.id);
     saveProducts();
     clearForm();
+    closeModal();
+    window.JustDoEatUI.showToast("Produto removido com sucesso.", "success");
 }
 
 function handleImageUpload(event) {
@@ -235,10 +260,24 @@ function handleImageUpload(event) {
         return;
     }
 
+    const allowedTypes = ["image/png", "image/jpeg", "image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+        window.JustDoEatUI.showToast("Use uma imagem PNG, JPG ou WEBP.", "error");
+        elements.image.value = "";
+        return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+        window.JustDoEatUI.showToast("A imagem deve ter no máximo 2 MB.", "error");
+        elements.image.value = "";
+        return;
+    }
+
     const reader = new FileReader();
     reader.onload = () => {
         state.uploadedImage = reader.result;
         elements.upload.textContent = "IMAGEM OK";
+        window.JustDoEatUI.showToast("Imagem carregada.", "success");
     };
     reader.readAsDataURL(file);
 }
@@ -247,6 +286,8 @@ function toggleStatus() {
     const isActive = elements.active.value !== "true";
     elements.active.value = String(isActive);
     elements.toggle.classList.toggle("inactive", !isActive);
+    updateStatusText();
+    window.JustDoEatUI.showToast(`Produto marcado como ${isActive ? "ativo" : "inativo"}.`, "info");
 }
 
 function toggleActiveFilter() {
@@ -260,7 +301,7 @@ function bindEvents() {
     elements.search.addEventListener("input", renderProducts);
     elements.add.addEventListener("click", clearForm);
     elements.filter.addEventListener("click", toggleActiveFilter);
-    elements.cancel.addEventListener("click", clearForm);
+    elements.cancel.addEventListener("click", closeModal);
     elements.delete.addEventListener("click", deleteSelectedProduct);
     elements.form.addEventListener("submit", handleSubmit);
     elements.price.addEventListener("input", () => {
@@ -269,6 +310,12 @@ function bindEvents() {
     elements.upload.addEventListener("click", () => elements.image.click());
     elements.image.addEventListener("change", handleImageUpload);
     elements.toggle.addEventListener("click", toggleStatus);
+    elements.modal.addEventListener("click", (event) => {
+        if (event.target === elements.modal) closeModal();
+    });
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !elements.modal.classList.contains("hidden")) closeModal();
+    });
 
     elements.list.addEventListener("click", (event) => {
         const card = event.target.closest("[data-product-id]");
@@ -294,3 +341,4 @@ function bindEvents() {
 
 bindEvents();
 renderProducts();
+updateStatusText();

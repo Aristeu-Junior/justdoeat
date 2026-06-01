@@ -77,7 +77,10 @@ async function register(req, res) {
   createSession(res, user.id);
 
   if (wantsJson(req)) {
-    sendJson(res, 201, { user: sanitizeUser(user) });
+    sendJson(res, 201, {
+      redirectTo: getDashboardByPerfil(user.perfil),
+      user: sanitizeUser(user)
+    });
     return;
   }
 

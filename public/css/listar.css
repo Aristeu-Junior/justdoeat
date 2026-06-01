@@ -232,8 +232,25 @@ body {
     text-align: center;
 }
 
+.product-modal {
+    align-items: center;
+    background-color: rgba(0,0,0,0.55);
+    display: flex;
+    inset: 0;
+    justify-content: center;
+    padding: 20px;
+    position: fixed;
+    z-index: 1000;
+}
+
+.product-modal.hidden {
+    display: none;
+}
+
 .right-panel {
-    width: 45%;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    width: min(520px, 100%);
 }
 
 .right-panel h2 {
@@ -289,6 +306,15 @@ body {
 
 .image-file-input {
     display: none;
+}
+
+.upload-hint,
+.status-text {
+    color: #111;
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 700;
+    margin: 4px 0 8px 0;
 }
 
 .toggle-container {

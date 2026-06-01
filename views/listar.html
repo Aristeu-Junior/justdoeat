@@ -28,6 +28,10 @@
     </header>
 
     <main>
+        <div class="container page-return">
+            <a href="dashboardv2.html">&larr; Voltar ao dashboard</a>
+        </div>
+
         <div class="page-logo-center">
             <img src="images/icons/logo_justdoeat.png" alt="Logo Just Do Eat">
             <h1>Just do Eat</h1>
@@ -51,6 +55,7 @@
                 <div class="products-list" id="products-list"></div>
             </div>
 
+            <div class="product-modal hidden" id="product-modal" role="dialog" aria-modal="true" aria-labelledby="form-title">
             <div class="panel right-panel">
                 <h2 id="form-title">CADASTRO / EDIÇÃO DE PRODUTOS</h2>
 
@@ -82,11 +87,13 @@
                         <label>Imagem / Status:</label>
                         <div class="upload-row">
                             <button type="button" class="btn-upload" id="upload-image">CARREGAR</button>
-                            <input type="file" id="product-image" class="image-file-input" accept="image/*">
-                            <button type="button" class="toggle-container" id="status-toggle" aria-label="Alternar status do produto">
+                            <input type="file" id="product-image" class="image-file-input" accept="image/png,image/jpeg,image/webp" aria-describedby="image-hint">
+                            <button type="button" class="toggle-container" id="status-toggle" aria-label="Alternar status do produto" aria-pressed="true">
                                 <span class="toggle-circle"></span>
                             </button>
                         </div>
+                        <small class="upload-hint" id="image-hint">Formatos aceitos: PNG, JPG ou WEBP. Tamanho máximo recomendado: 2 MB.</small>
+                        <p class="status-text" id="status-text">Status: Ativo</p>
                     </div>
 
                     <div class="form-group-custom">
@@ -100,6 +107,7 @@
                         <button type="submit" class="btn-panel btn-save">SALVAR PRODUTO</button>
                     </div>
                 </form>
+            </div>
             </div>
         </div>
     </main>
@@ -137,6 +145,7 @@
         </div>
     </footer>
 
+    <script src="js/app.js"></script>
     <script src="js/listar.js"></script>
 </body>
 </html>
