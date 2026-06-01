@@ -1,7 +1,9 @@
 const { readBody, redirect, sendJson, wantsJson } = require("../utils/http");
 const { isValidCep, isValidCpfOrCnpj, isValidEmail, isValidPhone } = require("../utils/validators");
 const { checkPassword, createUser, findUserByEmail, normalizeEmail, sanitizeUser } = require("../models/userModel");
+const { sanitizeFictitiousUser, validateFictitiousCredentials } = require("../models/fictitiousUserModel");
 const { clearSession, createSession, getCurrentUser } = require("../models/sessionModel");
+const { getDashboardByPerfil } = require("../utils/redirects");
 
 async function register(req, res) {
   const data = await readBody(req);
@@ -79,13 +81,29 @@ async function register(req, res) {
     return;
   }
 
-  redirect(res, "/dashboard.html");
+  redirect(res, getDashboardByPerfil(user.perfil));
 }
 
 async function login(req, res) {
   const data = await readBody(req);
   const user = findUserByEmail(data.email);
   const senha = String(data.senha || "");
+  const fictitiousUser = validateFictitiousCredentials(data.email, senha);
+
+  if (fictitiousUser) {
+    createSession(res, fictitiousUser.id);
+
+    if (wantsJson(req)) {
+      sendJson(res, 200, {
+        redirectTo: getDashboardByPerfil(fictitiousUser.perfil),
+        user: sanitizeFictitiousUser(fictitiousUser)
+      });
+      return;
+    }
+
+    redirect(res, getDashboardByPerfil(fictitiousUser.perfil));
+    return;
+  }
 
   if (!user || !checkPassword(senha, user.passwordHash)) {
     if (wantsJson(req)) {
@@ -100,11 +118,14 @@ async function login(req, res) {
   createSession(res, user.id);
 
   if (wantsJson(req)) {
-    sendJson(res, 200, { user: sanitizeUser(user) });
+    sendJson(res, 200, {
+      redirectTo: getDashboardByPerfil(user.perfil),
+      user: sanitizeUser(user)
+    });
     return;
   }
 
-  redirect(res, "/dashboard.html");
+  redirect(res, getDashboardByPerfil(user.perfil));
 }
 
 function logout(req, res) {

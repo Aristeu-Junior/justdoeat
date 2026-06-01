@@ -25,6 +25,7 @@ const viewFiles = new Set([
   "/registro.html",
   "/dashboard.html",
   "/dashboardv2.html",
+  "/admin.html",
   "/contato.html",
   "/listar.html",
   "/listasderestaurantes.html",

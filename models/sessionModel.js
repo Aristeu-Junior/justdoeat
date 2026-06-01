@@ -1,6 +1,7 @@
 const crypto = require("crypto");
 const { parseCookies } = require("../utils/http");
 const { findUserById } = require("./userModel");
+const { findFictitiousUserById, sanitizeFictitiousUser } = require("./fictitiousUserModel");
 
 const sessions = new Map();
 
@@ -28,7 +29,7 @@ function getCurrentUser(req) {
   const session = sessions.get(cookies.sessionId);
   if (!session) return null;
 
-  return findUserById(session.userId);
+  return findUserById(session.userId) || sanitizeFictitiousUser(findFictitiousUserById(session.userId));
 }
 
 module.exports = {
