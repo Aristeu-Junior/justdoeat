@@ -1,3 +1,5 @@
+module.exports = app;
+
 const http = require("http");
 const { handleRequest } = require("./routes/router");
 
