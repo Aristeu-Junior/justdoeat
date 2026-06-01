@@ -4,8 +4,8 @@
   "description": "Backend Node.js para o projeto Just Do Eat",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
+    "start": "node local-server.js",
+    "dev": "node local-server.js"
   },
   "keywords": [
     "node",

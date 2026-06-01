@@ -70,6 +70,11 @@ function servePage(req, res, pathname) {
 }
 
 function serveAsset(res, pathname) {
+  if (pathname === "/favicon.png" || pathname === "/favicon.ico") {
+    serveFile(res, path.join(PUBLIC_DIR, "images", "icons", "logo_justdoeat.png"), PUBLIC_DIR);
+    return;
+  }
+
   const isPublicAsset = pathname.startsWith("/css/") || pathname.startsWith("/js/") || pathname.startsWith("/images/");
 
   if (!isPublicAsset) {
