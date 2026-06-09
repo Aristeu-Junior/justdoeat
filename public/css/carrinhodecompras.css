@@ -102,6 +102,20 @@ main {
     width: 100%;
 }
 
+.cart-items {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+}
+
+.empty-cart-message {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 1.2rem;
+    margin: 0;
+    color: #000;
+}
+
 .item-image {
     width: 160px;
     height: 120px;
@@ -195,6 +209,12 @@ main {
 
 .btn-cart:hover {
     background-color: #d0d0d0;
+}
+
+.btn-finalizar.disabled,
+.btn-cart.disabled {
+    opacity: 0.55;
+    pointer-events: none;
 }
 
 .btn-cart-link {

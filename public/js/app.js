@@ -52,3 +52,167 @@ window.JustDoEatUI = {
     showToast,
     playLogoutFeedback
 };
+
+const JDE_CART_KEY = 'justdoeat.cart';
+const JDE_ORDERS_KEY = 'justdoeat.orders';
+
+const JDE_RESTAURANTS = [
+    {
+        slug: 'mcdonalds',
+        page: 'mcdonalds.html',
+        name: "Mc. Donald's",
+        category: 'comidas',
+        logoClass: 'bg-mc',
+        logo: 'M',
+        details: 'Lanches &bull; 1,5 km',
+        eta: '15-24 min &bull; R$ 6,99',
+        rating: '4.9',
+        description: 'Hamburgueres iconicos, batatas crocantes e o sabor classico que todo mundo ama.'
+    },
+    {
+        slug: 'burgerking',
+        page: 'burgerking.html',
+        name: 'Burger King',
+        category: 'comidas',
+        logoClass: 'bg-bk',
+        logo: 'BURGER<br>KING',
+        details: 'Lanches &bull; 2,1 km',
+        eta: '16-25 min &bull; R$ 5,99',
+        rating: '4.8',
+        description: 'Sabor grelhado no fogo de verdade, com combos generosos para matar a fome.'
+    },
+    {
+        slug: 'starbucks',
+        page: 'starbucks.html',
+        name: 'Starbucks',
+        category: 'bebidas',
+        logoClass: 'bg-sb',
+        logo: 'STARBUCKS',
+        details: 'Cafes &bull; 3,6 km',
+        eta: '27-37 min &bull; R$ 8,99',
+        rating: '4.7',
+        description: 'Cafes especiais, bebidas quentes, geladas e doces para acompanhar.'
+    },
+    {
+        slug: 'outback',
+        page: 'outback.html',
+        name: 'Outback',
+        category: 'comidas',
+        logoClass: 'bg-outback',
+        logo: 'OUTBACK',
+        details: 'Pratos &bull; 3,7 km',
+        eta: '20-30 min &bull; R$ 12,00',
+        rating: '4.7',
+        description: 'Carnes suculentas, porcoes marcantes e pratos inspirados no sabor australiano.'
+    },
+    {
+        slug: 'habibs',
+        page: 'habibs.html',
+        name: "Habib's",
+        category: 'comidas',
+        logoClass: 'bg-habibs',
+        logo: "HABIB'S",
+        details: 'Arabe &bull; 8,6 km',
+        eta: '10-14 min &bull; R$ 3,99',
+        rating: '4.3',
+        description: 'Esfihas, beirutes, kibes e opcoes para dividir com toda a familia.'
+    }
+];
+
+function parseCurrency(value) {
+    return Number(String(value || '').replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+}
+
+function formatCurrency(value) {
+    return Number(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+function readCart() {
+    try {
+        return JSON.parse(localStorage.getItem(JDE_CART_KEY)) || [];
+    } catch (error) {
+        return [];
+    }
+}
+
+function writeCart(items) {
+    localStorage.setItem(JDE_CART_KEY, JSON.stringify(items));
+    updateCartBadges();
+}
+
+function addCartItem(item) {
+    const cart = readCart();
+    const existing = cart.find((cartItem) => cartItem.id === item.id);
+
+    if (existing) {
+        existing.quantity += 1;
+    } else {
+        cart.push({ ...item, quantity: 1 });
+    }
+
+    writeCart(cart);
+    showToast(`${item.name} adicionado ao carrinho.`, 'success');
+}
+
+function clearCart() {
+    writeCart([]);
+}
+
+function readOrders() {
+    try {
+        return JSON.parse(localStorage.getItem(JDE_ORDERS_KEY)) || [];
+    } catch (error) {
+        return [];
+    }
+}
+
+function writeOrders(orders) {
+    localStorage.setItem(JDE_ORDERS_KEY, JSON.stringify(orders));
+}
+
+function updateCartBadges() {
+    const total = readCart().reduce((sum, item) => sum + Number(item.quantity || 0), 0);
+    document.querySelectorAll('[data-cart-count]').forEach((badge) => {
+        badge.textContent = String(total);
+        badge.hidden = total === 0;
+    });
+}
+
+function applyGlobalLinks() {
+    document.querySelectorAll('a').forEach((link) => {
+        const text = link.textContent.trim().toLowerCase();
+        if (text === 'comidas') link.href = 'listasderestaurantes.html?categoria=comidas';
+        if (text === 'bebidas') link.href = 'listasderestaurantes.html?categoria=bebidas';
+        if (text.includes('carreiras')) link.href = 'carreiras.html';
+        if (text.includes('parceiras')) link.href = 'parceiros.html';
+        if (text.includes('entregador')) link.href = 'entregador.html';
+    });
+}
+
+function bindHeaderSearch() {
+    document.querySelectorAll('.search-form').forEach((form) => {
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const query = new FormData(form).get('q') || '';
+            window.location.href = `listasderestaurantes.html?q=${encodeURIComponent(query)}`;
+        });
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    applyGlobalLinks();
+    bindHeaderSearch();
+    updateCartBadges();
+});
+
+window.JustDoEat = {
+    restaurants: JDE_RESTAURANTS,
+    addCartItem,
+    clearCart,
+    formatCurrency,
+    parseCurrency,
+    readCart,
+    readOrders,
+    writeCart,
+    writeOrders
+};

@@ -152,6 +152,27 @@ body.form-page > footer {
     display: none;
 }
 
+.payment-option {
+    display: block;
+    background: #3a3a3a;
+    border: 1px solid #555;
+    border-radius: 8px;
+    color: #fff;
+    font-weight: 700;
+    margin-bottom: 12px;
+    padding: 14px;
+}
+
+.checkout-success {
+    text-align: center;
+}
+
+.checkout-success .sb {
+    display: block;
+    margin-top: 20px;
+    text-decoration: none;
+}
+
 
 @media (max-width: 600px) {
     body.form-page {
