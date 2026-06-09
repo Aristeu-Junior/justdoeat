@@ -209,11 +209,15 @@ function getProfilePageByRole(role) {
 function renderAuthenticatedHeader(user) {
     const headerActions = document.querySelectorAll('.header-actions');
     const profileHref = getProfilePageByRole(user?.perfil);
+    const normalizedRole = String(user?.perfil || '').toLowerCase();
+    const cartLink = normalizedRole === 'cliente'
+        ? '<a href="carrinhodecompras.html" class="btn btn-secondary">Carrinho</a>'
+        : '';
 
     headerActions.forEach((actions) => {
         actions.innerHTML = `
             <a href="${profileHref}" class="btn btn-primary">Perfil</a>
-            <a href="carrinhodecompras.html" class="btn btn-secondary">Carrinho</a>
+            ${cartLink}
             <form action="/api/logout" method="post">
                 <button type="submit" class="btn btn-secondary">Sair</button>
             </form>
