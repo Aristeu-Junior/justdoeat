@@ -27,6 +27,7 @@ const viewFiles = new Set([
   "/dashboardv2.html",
   "/admin.html",
   "/admin-clientes.html",
+  "/admin-pedidos.html",
   "/admin-restaurantes.html",
   "/burgerking.html",
   "/contato.html",
@@ -49,6 +50,38 @@ const viewFiles = new Set([
   "/starbucks.html",
   "/quemsomos.html"
 ]);
+
+const roleHomePages = {
+  cliente: "/meu-perfil.html",
+  restaurante: "/dashboardv2.html",
+  admin: "/admin.html",
+  administrador: "/admin.html"
+};
+
+const protectedPages = {
+  "/admin.html": ["admin", "administrador"],
+  "/admin-clientes.html": ["admin", "administrador"],
+  "/admin-pedidos.html": ["admin", "administrador"],
+  "/admin-restaurantes.html": ["admin", "administrador"],
+  "/carrinhodecompras.html": ["cliente"],
+  "/checkout-endereco.html": ["cliente"],
+  "/checkout-pagamento.html": ["cliente"],
+  "/checkout-sucesso.html": ["cliente"],
+  "/config-restaurante.html": ["restaurante"],
+  "/dashboardv2.html": ["restaurante"],
+  "/listar.html": ["restaurante"],
+  "/meu-perfil.html": ["cliente"],
+  "/pedidos-restaurante.html": ["restaurante"],
+  "/relatorios-restaurante.html": ["restaurante"]
+};
+
+function normalizeRole(user) {
+  return String(user?.perfil || "").toLowerCase();
+}
+
+function getHomeByRole(role) {
+  return roleHomePages[role] || "/dashboard.html";
+}
 
 function serveFile(res, filePath, baseDir) {
   const normalizedPath = path.normalize(filePath);
@@ -79,8 +112,24 @@ function servePage(req, res, pathname) {
     return;
   }
 
-  if (page === "/dashboard.html" && !getCurrentUser(req)) {
+  const allowedRoles = protectedPages[page];
+  const currentUser = getCurrentUser(req);
+
+  if ((page === "/dashboard.html" || allowedRoles) && !currentUser) {
     redirect(res, "/login.html?erro=login-obrigatorio");
+    return;
+  }
+
+  if (allowedRoles) {
+    const role = normalizeRole(currentUser);
+    if (!allowedRoles.includes(role)) {
+      redirect(res, `${getHomeByRole(role)}?erro=acesso-negado`);
+      return;
+    }
+  }
+
+  if (page === "/dashboard.html" && currentUser) {
+    redirect(res, getHomeByRole(normalizeRole(currentUser)));
     return;
   }
 

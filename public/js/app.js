@@ -199,10 +199,52 @@ function bindHeaderSearch() {
     });
 }
 
+function getProfilePageByRole(role) {
+    const normalizedRole = String(role || '').toLowerCase();
+    if (normalizedRole === 'admin' || normalizedRole === 'administrador') return 'admin.html';
+    if (normalizedRole === 'restaurante') return 'dashboardv2.html';
+    return 'meu-perfil.html';
+}
+
+function renderAuthenticatedHeader(user) {
+    const headerActions = document.querySelectorAll('.header-actions');
+    const profileHref = getProfilePageByRole(user?.perfil);
+
+    headerActions.forEach((actions) => {
+        actions.innerHTML = `
+            <a href="${profileHref}" class="btn btn-primary">Perfil</a>
+            <a href="carrinhodecompras.html" class="btn btn-secondary">Carrinho</a>
+            <form action="/api/logout" method="post">
+                <button type="submit" class="btn btn-secondary">Sair</button>
+            </form>
+        `;
+    });
+}
+
+async function hydrateAuthHeader() {
+    try {
+        const response = await fetch('/api/me', { headers: { Accept: 'application/json' } });
+        if (!response.ok) return;
+        const result = await response.json();
+        if (result.user) renderAuthenticatedHeader(result.user);
+    } catch (error) {
+        return;
+    }
+}
+
+function showAccessMessages() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('erro') === 'acesso-negado') {
+        showToast('Seu perfil nao tem permissao para acessar essa area.', 'error');
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     applyGlobalLinks();
     bindHeaderSearch();
     updateCartBadges();
+    hydrateAuthHeader();
+    showAccessMessages();
 });
 
 window.JustDoEat = {
