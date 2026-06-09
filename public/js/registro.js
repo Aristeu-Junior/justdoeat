@@ -1,3 +1,23 @@
+// Redireciona usuário já autenticado para seu dashboard
+(async function redirectIfLoggedIn() {
+    try {
+        const res = await fetch('/api/me', { headers: { Accept: 'application/json' } });
+        if (res.ok) {
+            const data = await res.json();
+            if (data.user) {
+                const perfil = String(data.user.perfil || '').toLowerCase();
+                if (perfil === 'admin' || perfil === 'administrador') {
+                    window.location.replace('/admin.html');
+                } else if (perfil === 'restaurante') {
+                    window.location.replace('/dashboardv2.html');
+                } else {
+                    window.location.replace('/meu-perfil.html');
+                }
+            }
+        }
+    } catch (_) { /* não logado, segue normalmente */ }
+})();
+
 const cadastroForm = document.getElementById('cadastro-form');
 const perfilSelect = document.getElementById('perfil');
 
